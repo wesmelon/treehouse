@@ -24,6 +24,7 @@ Play as a friendly critter (raccoon, bunny, puppy, or kitty) tending a larger sc
 - Day/Night: Time passes; when it’s night, stand on the bed and press Action to sleep and start the next morning.
 - Seasonal: Festive touches like a cozy 🎄 and presents hang out near the center.
 - Houses: Stand at a door and press Action to enter; talk to friends inside or step on the exit mat to return outside.
+- Save/Load: Use the Save Map / Load Map buttons (bottom-right) to export/import map state as JSON.
 
 ## Loop
 
@@ -35,6 +36,7 @@ Play as a friendly critter (raccoon, bunny, puppy, or kitty) tending a larger sc
 - Seasonal decorations are just for cheer; they don’t block planting or movement.
 - When night falls, other actions pause until you sleep in the bed; sleeping resets time to morning and bumps the day count.
 - Houses contain NPC pals and simple furniture; Action near a door enters, Action near a pal shows a friendly line.
+- Map state can be exported/imported via JSON; stored separately from code.
 
 ## Design for toddlers
 

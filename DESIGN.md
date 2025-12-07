@@ -13,7 +13,7 @@
 6) Repeat anywhere; nothing wilts or is lost.
 
 ## World & camera
-- 18×24 world rendered as a soft meadow (no visible grid) with smooth camera follow.
+- Larger 22×32 world rendered as a soft meadow (no visible grid) with smooth camera follow.
 - Visible viewport about 8×12 tiles worth of space; camera centers on the player and clamps to edges.
 - Ground variation via subtle noise instead of strict tiles.
 - Seasonal decor: static cheerful items (🎄, 🎁, ⭐) placed near center; non-blocking and purely visual.
@@ -26,6 +26,7 @@
 - No collisions or blocking; purely friendly company.
 - Fruits: random drops on empty tiles (watermelon favored) that kids collect by walking over; tracked as a simple count.
 - House pals: each house interior includes a couple of NPCs with friendly lines; Action near them shows a short greeting.
+- Map state: export/import JSON for persistence outside code.
 
 ## Controls & input
 - Keyboard: WASD / arrows to move; Space to act.

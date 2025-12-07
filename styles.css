@@ -210,6 +210,20 @@ body.night .game-area {
   color: #5c6c78;
 }
 
+.save-load {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  display: flex;
+  gap: 8px;
+}
+
+.save-load .control-btn {
+  font-size: 14px;
+  min-width: 100px;
+  padding: 10px 14px;
+}
+
 @media (max-width: 840px) {
   .layout {
     grid-template-columns: 1fr;

@@ -1,5 +1,5 @@
-const farmRows = 18;
-const farmCols = 24;
+let farmRows = 22;
+let farmCols = 32;
 const viewRows = 8;
 const viewCols = 12;
 const tileSize = 72;
@@ -30,7 +30,7 @@ const houses = [
   {
     id: 'cabin',
     name: 'Cozy Cabin',
-    door: { x: 6.5, y: 5.5 },
+    door: { x: 7.5, y: 6.5 },
     interior: {
       width: 12,
       height: 8,
@@ -53,7 +53,7 @@ const houses = [
   {
     id: 'barn',
     name: 'Sunny Barn',
-    door: { x: 15.5, y: 10.5 },
+    door: { x: 22.5, y: 12.5 },
     interior: {
       width: 14,
       height: 9,
@@ -106,6 +106,7 @@ function init() {
   setupGamepad();
   spawnFriends();
   placeDecorations();
+  bindSaveLoad();
   updateDayState();
   updateHarvest();
   updateFruitCount();
@@ -166,6 +167,38 @@ function attachControls() {
       btn.classList.add('selected');
     }
   });
+}
+
+function bindSaveLoad() {
+  const saveBtn = document.getElementById('save-map');
+  const loadInput = document.getElementById('load-map');
+  if (saveBtn) {
+    saveBtn.addEventListener('click', () => {
+      const state = serializeState();
+      if (window.MapState?.download) {
+        window.MapState.download(state);
+        setMood('Saved your map!');
+      }
+    });
+  }
+  if (loadInput) {
+    loadInput.addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(reader.result);
+          applyState(data);
+          setMood('Loaded map file!');
+        } catch (err) {
+          console.error('Failed to load map', err);
+          setMood('Oops, could not load map.');
+        }
+      };
+      reader.readAsText(file);
+    });
+  }
 }
 
 function setTouchDir(dir, on) {
@@ -1081,6 +1114,59 @@ function getAreaBounds() {
     return { width: currentHouse.interior.width, height: currentHouse.interior.height };
   }
   return { width: farmCols, height: farmRows };
+}
+
+function serializeState() {
+  return {
+    farmRows,
+    farmCols,
+    grid,
+    fruits,
+    decorations,
+    houses,
+    friends,
+    player,
+    baskets,
+    fruitsCollected,
+    dayCount,
+    timeMs,
+    isNight,
+    needsSleep,
+    currentHouseId: currentHouse?.id || null,
+    currentArea,
+    returnPositions,
+  };
+}
+
+function applyState(state) {
+  if (!state || !state.grid || !state.farmRows || !state.farmCols) return;
+  farmRows = state.farmRows;
+  farmCols = state.farmCols;
+  grid.length = 0;
+  groundNoise.length = 0;
+  for (let y = 0; y < farmRows; y++) {
+    for (let x = 0; x < farmCols; x++) {
+      grid.push(state.grid[y * farmCols + x] || { stage: 'empty', timer: 0 });
+      groundNoise.push(Math.random());
+    }
+  }
+  fruits.length = 0;
+  state.fruits?.forEach((f) => fruits.push(f));
+  decorations.length = 0;
+  state.decorations?.forEach((d) => decorations.push(d));
+  friends.length = 0;
+  state.friends?.forEach((f) => friends.push(f));
+  player = state.player || player;
+  baskets = state.baskets || 0;
+  fruitsCollected = state.fruitsCollected || 0;
+  dayCount = state.dayCount || 1;
+  timeMs = state.timeMs || 0;
+  isNight = !!state.isNight;
+  needsSleep = !!state.needsSleep;
+  currentArea = state.currentArea || 'farm';
+  currentHouse = state.currentHouseId ? houses.find((h) => h.id === state.currentHouseId) || null : null;
+  Object.assign(returnPositions, state.returnPositions || {});
+  resizeCanvas();
 }
 
 function updateHarvest() {
