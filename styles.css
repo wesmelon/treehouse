@@ -1,0 +1,217 @@
+:root {
+  --sky: #c9f2ff;
+  --leaf: #70d779;
+  --soil: #d8a15f;
+  --path: #f4d9a3;
+  --accent: #ff9e9d;
+  --deep: #2f4858;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: 'Fredoka', 'Nunito', 'Baloo 2', 'Helvetica Neue', Arial, sans-serif;
+  background: linear-gradient(180deg, var(--sky) 0%, #fafff6 70%);
+  color: var(--deep);
+  min-height: 100vh;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 600;
+}
+.status { display: flex; gap: 16px; font-size: 16px; }
+
+.layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 16px;
+  padding: 16px 24px 32px;
+}
+
+.panel {
+  background: white;
+  border-radius: 16px;
+  padding: 16px 18px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+}
+
+.panel.soft {
+  background: #fff7ed;
+}
+
+.avatar-choices {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.avatar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  padding: 10px 12px;
+  cursor: pointer;
+  background: white;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.1);
+  transition: transform 100ms ease, box-shadow 100ms ease, border-color 120ms ease;
+}
+
+.avatar-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+}
+
+.avatar-btn.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255, 158, 157, 0.35);
+}
+
+.avatar-swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.avatar-swatch.raccoon { background: linear-gradient(135deg, #4b3f3a, #7a6a63); }
+.avatar-swatch.bunny { background: linear-gradient(135deg, #f5c6d6, #ffdce8); }
+.avatar-swatch.puppy { background: linear-gradient(135deg, #d6a16a, #f2c387); }
+.avatar-swatch.kitty { background: linear-gradient(135deg, #f2d37f, #ffe7a8); }
+
+.hint {
+  margin: 10px 0 0;
+  color: #6c7a86;
+  font-size: 14px;
+}
+
+h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+ul {
+  padding-left: 18px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.controls {
+  display: grid;
+  grid-template-rows: auto auto auto;
+  justify-items: center;
+  gap: 8px;
+}
+
+.middle-row {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  gap: 8px;
+  align-items: center;
+}
+
+.control-btn {
+  background: var(--leaf);
+  color: white;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 16px;
+  min-width: 60px;
+  min-height: 48px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.12);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.control-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.12);
+}
+
+.control-btn[data-dir="action"] {
+  background: var(--accent);
+  min-width: 130px;
+}
+
+.game-area {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.06), 0 6px 14px rgba(0, 0, 0, 0.08);
+  min-height: 520px;
+}
+
+body.night {
+  background: linear-gradient(180deg, #0f1a2b 0%, #1e2f44 70%);
+  color: #e7f3ff;
+}
+
+body.night .top-bar {
+  background: #1b2b3f;
+  color: #e7f3ff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+body.night .panel {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e7f3ff;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+}
+
+body.night .panel.soft {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+body.night .game-area {
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.18), 0 6px 14px rgba(0, 0, 0, 0.22);
+}
+
+#game-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 16px;
+}
+
+.sparkle {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), transparent 30%),
+              radial-gradient(circle at 70% 60%, rgba(255,255,255,0.6), transparent 40%);
+  animation: twinkle 1.4s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+.footer {
+  padding: 12px 24px 24px;
+  color: #5c6c78;
+}
+
+@media (max-width: 840px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
