@@ -86,6 +86,8 @@ let gamepadAxes = { x: 0, y: 0 };
 let lastActionPressed = false;
 let lastActionAt = 0;
 const actionCooldown = 260;
+let walkCycle = 0;
+let isMoving = false;
 let friendMoveTimer = 0;
 const friendMoveDelay = 1.2;
 let fruitTimer = 0;
@@ -299,7 +301,7 @@ function update(dt) {
 }
 
 function updateMovement(dt) {
-  const speed = 4.5; // cells per second
+  const speed = 3.2; // cells per second (slower for toddle pace)
   let vx = (inputState.right ? 1 : 0) - (inputState.left ? 1 : 0);
   let vy = (inputState.down ? 1 : 0) - (inputState.up ? 1 : 0);
 
@@ -311,6 +313,12 @@ function updateMovement(dt) {
     vx /= mag;
     vy /= mag;
   }
+
+  const moving = mag > 0.05;
+  if (moving) {
+    walkCycle = (walkCycle + dt * 8) % (Math.PI * 2);
+  }
+  isMoving = moving;
 
   const bounds = getAreaBounds();
   player.x = clamp(player.x + vx * speed * dt, 0.5, bounds.width - 0.5);
@@ -583,7 +591,7 @@ function drawPlants(ctx, camera, scale) {
 function drawFriends(ctx, camera, scale) {
   friends.forEach((f) => {
     const [sx, sy] = worldToScreen(f.x, f.y, camera, scale);
-    drawCritterSprite(ctx, sx, sy, scale, f.avatar);
+    drawCritterSprite(ctx, sx, sy, scale, f.avatar, false, 0);
   });
 }
 
@@ -603,7 +611,7 @@ function drawFruits(ctx, camera, scale) {
 
 function drawPlayer(ctx, camera, scale) {
   const [sx, sy] = worldToScreen(player.x, player.y, camera, scale);
-  drawCritterSprite(ctx, sx, sy, scale, playerAvatar, true);
+  drawCritterSprite(ctx, sx, sy, scale, playerAvatar, true, walkCycle, isMoving);
 }
 
 function drawNightOverlay(ctx) {
@@ -763,7 +771,7 @@ function drawDecorSprite(ctx, sx, sy, scale, type) {
   ctx.restore();
 }
 
-function drawCritterSprite(ctx, sx, sy, scale, type, highlight = false) {
+function drawCritterSprite(ctx, sx, sy, scale, type, highlight = false, walkPhase = 0, moving = false) {
   const palettes = {
     raccoon: { body: '#55463f', accent: '#7d6f68', mask: '#3a312d', belly: '#f1e7dc' },
     bunny: { body: '#f5d8e3', accent: '#ffdce8', mask: '#f7ebf1', belly: '#fff8fc' },
@@ -772,6 +780,8 @@ function drawCritterSprite(ctx, sx, sy, scale, type, highlight = false) {
   };
   const palette = palettes[type] || { body: '#7b5de7', accent: '#a38bf2', mask: '#6049c1', belly: '#ede6ff' };
   const r = tileSize * 0.32 * scale;
+  const bob = moving ? Math.sin(walkPhase * 2) * r * 0.08 : 0;
+  const legSwing = moving ? Math.sin(walkPhase * 2) * r * 0.15 : 0;
   ctx.save();
   ctx.shadowColor = highlight ? 'rgba(0,0,0,0.28)' : 'rgba(0,0,0,0.18)';
   ctx.shadowBlur = highlight ? 14 : 10;
@@ -779,37 +789,37 @@ function drawCritterSprite(ctx, sx, sy, scale, type, highlight = false) {
   // Body
   ctx.fillStyle = palette.body;
   ctx.beginPath();
-  ctx.ellipse(sx, sy + r * 0.25, r * 1.1, r * 1.1, 0, 0, Math.PI * 2);
+  ctx.ellipse(sx, sy + r * 0.25 + bob, r * 1.1, r * 1.1, 0, 0, Math.PI * 2);
   ctx.fill();
 
   // Belly
   ctx.fillStyle = palette.belly;
   ctx.beginPath();
-  ctx.ellipse(sx, sy + r * 0.4, r * 0.65, r * 0.5, 0, 0, Math.PI * 2);
+  ctx.ellipse(sx, sy + r * 0.4 + bob, r * 0.65, r * 0.5, 0, 0, Math.PI * 2);
   ctx.fill();
 
   // Head
   ctx.fillStyle = palette.body;
   ctx.beginPath();
-  ctx.ellipse(sx, sy - r * 0.15, r * 0.95, r * 0.9, 0, 0, Math.PI * 2);
+  ctx.ellipse(sx, sy - r * 0.15 + bob, r * 0.95, r * 0.9, 0, 0, Math.PI * 2);
   ctx.fill();
 
   // Ears per type
   ctx.fillStyle = palette.accent;
   if (type === 'bunny') {
-    drawEar(ctx, sx - r * 0.55, sy - r * 0.8, r * 0.32, r * 0.9);
-    drawEar(ctx, sx + r * 0.55, sy - r * 0.8, r * 0.32, r * 0.9);
+    drawEar(ctx, sx - r * 0.55, sy - r * 0.8 + bob, r * 0.32, r * 0.9);
+    drawEar(ctx, sx + r * 0.55, sy - r * 0.8 + bob, r * 0.32, r * 0.9);
   } else if (type === 'kitty') {
-    drawTriangleEar(ctx, sx - r * 0.65, sy - r * 0.7, r * 0.45);
-    drawTriangleEar(ctx, sx + r * 0.65, sy - r * 0.7, r * 0.45);
+    drawTriangleEar(ctx, sx - r * 0.65, sy - r * 0.7 + bob, r * 0.45);
+    drawTriangleEar(ctx, sx + r * 0.65, sy - r * 0.7 + bob, r * 0.45);
   } else if (type === 'puppy') {
-    drawFlopEar(ctx, sx - r * 0.75, sy - r * 0.3, r * 0.35, r * 0.6);
-    drawFlopEar(ctx, sx + r * 0.75, sy - r * 0.3, r * 0.35, r * 0.6);
+    drawFlopEar(ctx, sx - r * 0.75, sy - r * 0.3 + bob, r * 0.35, r * 0.6);
+    drawFlopEar(ctx, sx + r * 0.75, sy - r * 0.3 + bob, r * 0.35, r * 0.6);
   } else {
     // raccoon/other round ears
     ctx.beginPath();
-    ctx.arc(sx - r * 0.7, sy - r * 0.5, r * 0.35, 0, Math.PI * 2);
-    ctx.arc(sx + r * 0.7, sy - r * 0.5, r * 0.35, 0, Math.PI * 2);
+    ctx.arc(sx - r * 0.7, sy - r * 0.5 + bob, r * 0.35, 0, Math.PI * 2);
+    ctx.arc(sx + r * 0.7, sy - r * 0.5 + bob, r * 0.35, 0, Math.PI * 2);
     ctx.fill();
   }
 
@@ -818,16 +828,16 @@ function drawCritterSprite(ctx, sx, sy, scale, type, highlight = false) {
   if (type === 'raccoon') {
     ctx.fillStyle = palette.mask;
     ctx.beginPath();
-    ctx.ellipse(sx, sy - r * 0.1, r * 1.05, r * 0.65, 0, 0, Math.PI * 2);
+    ctx.ellipse(sx, sy - r * 0.1 + bob, r * 1.05, r * 0.65, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = palette.belly;
     ctx.beginPath();
-    ctx.ellipse(sx, sy + r * 0.15, r * 0.65, r * 0.55, 0, 0, Math.PI * 2);
+    ctx.ellipse(sx, sy + r * 0.15 + bob, r * 0.65, r * 0.55, 0, 0, Math.PI * 2);
     ctx.fill();
   } else {
     ctx.fillStyle = palette.belly;
     ctx.beginPath();
-    ctx.ellipse(sx, sy + r * 0.1, r * 0.65, r * 0.55, 0, 0, Math.PI * 2);
+    ctx.ellipse(sx, sy + r * 0.1 + bob, r * 0.65, r * 0.55, 0, 0, Math.PI * 2);
     ctx.fill();
   }
 
@@ -835,14 +845,14 @@ function drawCritterSprite(ctx, sx, sy, scale, type, highlight = false) {
   ctx.fillStyle = '#2f2f2f';
   const eyeOffset = r * 0.35;
   ctx.beginPath();
-  ctx.arc(sx - eyeOffset, sy - r * 0.05, r * 0.12, 0, Math.PI * 2);
-  ctx.arc(sx + eyeOffset, sy - r * 0.05, r * 0.12, 0, Math.PI * 2);
+  ctx.arc(sx - eyeOffset, sy - r * 0.05 + bob, r * 0.12, 0, Math.PI * 2);
+  ctx.arc(sx + eyeOffset, sy - r * 0.05 + bob, r * 0.12, 0, Math.PI * 2);
   ctx.fill();
 
   // Nose
   ctx.fillStyle = '#e67a7a';
   ctx.beginPath();
-  ctx.arc(sx, sy + r * 0.18, r * 0.12, 0, Math.PI * 2);
+  ctx.arc(sx, sy + r * 0.18 + bob, r * 0.12, 0, Math.PI * 2);
   ctx.fill();
 
   // Whiskers for kitty/bunny
@@ -850,14 +860,14 @@ function drawCritterSprite(ctx, sx, sy, scale, type, highlight = false) {
     ctx.strokeStyle = 'rgba(0,0,0,0.35)';
     ctx.lineWidth = 2 * scale;
     ctx.beginPath();
-    ctx.moveTo(sx - r * 0.5, sy + r * 0.18);
-    ctx.lineTo(sx - r * 0.9, sy + r * 0.1);
-    ctx.moveTo(sx - r * 0.5, sy + r * 0.25);
-    ctx.lineTo(sx - r * 0.9, sy + r * 0.3);
-    ctx.moveTo(sx + r * 0.5, sy + r * 0.18);
-    ctx.lineTo(sx + r * 0.9, sy + r * 0.1);
-    ctx.moveTo(sx + r * 0.5, sy + r * 0.25);
-    ctx.lineTo(sx + r * 0.9, sy + r * 0.3);
+    ctx.moveTo(sx - r * 0.5, sy + r * 0.18 + bob);
+    ctx.lineTo(sx - r * 0.9, sy + r * 0.1 + bob);
+    ctx.moveTo(sx - r * 0.5, sy + r * 0.25 + bob);
+    ctx.lineTo(sx - r * 0.9, sy + r * 0.3 + bob);
+    ctx.moveTo(sx + r * 0.5, sy + r * 0.18 + bob);
+    ctx.lineTo(sx + r * 0.9, sy + r * 0.1 + bob);
+    ctx.moveTo(sx + r * 0.5, sy + r * 0.25 + bob);
+    ctx.lineTo(sx + r * 0.9, sy + r * 0.3 + bob);
     ctx.stroke();
   }
 
@@ -865,17 +875,35 @@ function drawCritterSprite(ctx, sx, sy, scale, type, highlight = false) {
   ctx.fillStyle = palette.accent;
   if (type === 'raccoon') {
     ctx.beginPath();
-    ctx.ellipse(sx + r * 0.95, sy + r * 0.5, r * 0.4, r * 0.2, 0.4, 0, Math.PI * 2);
+    ctx.ellipse(sx + r * 0.95, sy + r * 0.5 + bob, r * 0.4, r * 0.2, 0.4, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = palette.mask;
-    ctx.fillRect(sx + r * 0.7, sy + r * 0.45, r * 0.2, r * 0.1);
+    ctx.fillRect(sx + r * 0.7, sy + r * 0.45 + bob, r * 0.2, r * 0.1);
   } else if (type === 'puppy') {
     ctx.beginPath();
-    ctx.ellipse(sx + r * 0.9, sy + r * 0.4, r * 0.35, r * 0.18, -0.4, 0, Math.PI * 2);
+    ctx.ellipse(sx + r * 0.9, sy + r * 0.4 + bob, r * 0.35, r * 0.18, -0.4, 0, Math.PI * 2);
     ctx.fill();
   } else if (type === 'kitty') {
     ctx.beginPath();
-    ctx.ellipse(sx + r * 0.9, sy + r * 0.45, r * 0.32, r * 0.16, 0.2, 0, Math.PI * 2);
+    ctx.ellipse(sx + r * 0.9, sy + r * 0.45 + bob, r * 0.32, r * 0.16, 0.2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Simple leg swings
+  const legY = sy + r * 0.9 + bob;
+  ctx.fillStyle = palette.mask;
+  const legW = r * 0.18;
+  const legH = r * 0.32;
+  ctx.save();
+  ctx.translate(sx, legY);
+  ctx.rotate(legSwing * 0.05);
+  ctx.fillRect(-r * 0.5 - legW, -legH * 0.2, legW, legH);
+  ctx.rotate(-legSwing * 0.1);
+  ctx.fillRect(r * 0.5, -legH * 0.2, legW, legH);
+  ctx.restore();
+
+  ctx.fillStyle = palette.belly;
+  ctx.fillRect(sx - r * 0.4, legY - legH * 0.2, r * 0.8, legH * 0.35);
     ctx.fill();
   }
 
