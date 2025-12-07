@@ -732,48 +732,120 @@ function drawDecorSprite(ctx, sx, sy, scale, type) {
 
 function drawCritterSprite(ctx, sx, sy, scale, type, highlight = false) {
   const palettes = {
-    raccoon: ['#4b3f3a', '#7a6a63'],
-    bunny: ['#f5c6d6', '#ffdce8'],
-    puppy: ['#d6a16a', '#f2c387'],
-    kitty: ['#f2d37f', '#ffe7a8'],
+    raccoon: { body: '#55463f', accent: '#7d6f68', mask: '#3a312d', belly: '#f1e7dc' },
+    bunny: { body: '#f5d8e3', accent: '#ffdce8', mask: '#f7ebf1', belly: '#fff8fc' },
+    puppy: { body: '#d6a16a', accent: '#f2c387', mask: '#b78454', belly: '#f7e3c7' },
+    kitty: { body: '#f2d37f', accent: '#ffe7a8', mask: '#d9ba6a', belly: '#fff6db' },
   };
-  const [base, ear] = palettes[type] || ['#7b5de7', '#a38bf2'];
+  const palette = palettes[type] || { body: '#7b5de7', accent: '#a38bf2', mask: '#6049c1', belly: '#ede6ff' };
   const r = tileSize * 0.32 * scale;
   ctx.save();
   ctx.shadowColor = highlight ? 'rgba(0,0,0,0.28)' : 'rgba(0,0,0,0.18)';
   ctx.shadowBlur = highlight ? 14 : 10;
-  ctx.fillStyle = base;
+
+  // Body
+  ctx.fillStyle = palette.body;
   ctx.beginPath();
-  ctx.arc(sx, sy, r, 0, Math.PI * 2);
+  ctx.ellipse(sx, sy + r * 0.25, r * 1.1, r * 1.1, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // ears
-  ctx.fillStyle = ear;
+  // Belly
+  ctx.fillStyle = palette.belly;
   ctx.beginPath();
-  ctx.arc(sx - r * 0.7, sy - r * 0.4, r * 0.4, 0, Math.PI * 2);
-  ctx.arc(sx + r * 0.7, sy - r * 0.4, r * 0.4, 0, Math.PI * 2);
+  ctx.ellipse(sx, sy + r * 0.4, r * 0.65, r * 0.5, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // face
+  // Head
+  ctx.fillStyle = palette.body;
+  ctx.beginPath();
+  ctx.ellipse(sx, sy - r * 0.15, r * 0.95, r * 0.9, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Ears per type
+  ctx.fillStyle = palette.accent;
+  if (type === 'bunny') {
+    drawEar(ctx, sx - r * 0.55, sy - r * 0.8, r * 0.32, r * 0.9);
+    drawEar(ctx, sx + r * 0.55, sy - r * 0.8, r * 0.32, r * 0.9);
+  } else if (type === 'kitty') {
+    drawTriangleEar(ctx, sx - r * 0.65, sy - r * 0.7, r * 0.45);
+    drawTriangleEar(ctx, sx + r * 0.65, sy - r * 0.7, r * 0.45);
+  } else if (type === 'puppy') {
+    drawFlopEar(ctx, sx - r * 0.75, sy - r * 0.3, r * 0.35, r * 0.6);
+    drawFlopEar(ctx, sx + r * 0.75, sy - r * 0.3, r * 0.35, r * 0.6);
+  } else {
+    // raccoon/other round ears
+    ctx.beginPath();
+    ctx.arc(sx - r * 0.7, sy - r * 0.5, r * 0.35, 0, Math.PI * 2);
+    ctx.arc(sx + r * 0.7, sy - r * 0.5, r * 0.35, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Face mask and muzzle
   ctx.shadowBlur = 0;
-  ctx.fillStyle = '#fff';
-  ctx.beginPath();
-  ctx.arc(sx, sy + r * 0.15, r * 0.7, 0, Math.PI * 2);
-  ctx.fill();
+  if (type === 'raccoon') {
+    ctx.fillStyle = palette.mask;
+    ctx.beginPath();
+    ctx.ellipse(sx, sy - r * 0.1, r * 1.05, r * 0.65, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = palette.belly;
+    ctx.beginPath();
+    ctx.ellipse(sx, sy + r * 0.15, r * 0.65, r * 0.55, 0, 0, Math.PI * 2);
+    ctx.fill();
+  } else {
+    ctx.fillStyle = palette.belly;
+    ctx.beginPath();
+    ctx.ellipse(sx, sy + r * 0.1, r * 0.65, r * 0.55, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
 
-  // eyes
+  // Eyes
   ctx.fillStyle = '#2f2f2f';
   const eyeOffset = r * 0.35;
   ctx.beginPath();
-  ctx.arc(sx - eyeOffset, sy, r * 0.12, 0, Math.PI * 2);
-  ctx.arc(sx + eyeOffset, sy, r * 0.12, 0, Math.PI * 2);
+  ctx.arc(sx - eyeOffset, sy - r * 0.05, r * 0.12, 0, Math.PI * 2);
+  ctx.arc(sx + eyeOffset, sy - r * 0.05, r * 0.12, 0, Math.PI * 2);
   ctx.fill();
 
-  // nose
+  // Nose
   ctx.fillStyle = '#e67a7a';
   ctx.beginPath();
-  ctx.arc(sx, sy + r * 0.25, r * 0.12, 0, Math.PI * 2);
+  ctx.arc(sx, sy + r * 0.18, r * 0.12, 0, Math.PI * 2);
   ctx.fill();
+
+  // Whiskers for kitty/bunny
+  if (type === 'kitty' || type === 'bunny') {
+    ctx.strokeStyle = 'rgba(0,0,0,0.35)';
+    ctx.lineWidth = 2 * scale;
+    ctx.beginPath();
+    ctx.moveTo(sx - r * 0.5, sy + r * 0.18);
+    ctx.lineTo(sx - r * 0.9, sy + r * 0.1);
+    ctx.moveTo(sx - r * 0.5, sy + r * 0.25);
+    ctx.lineTo(sx - r * 0.9, sy + r * 0.3);
+    ctx.moveTo(sx + r * 0.5, sy + r * 0.18);
+    ctx.lineTo(sx + r * 0.9, sy + r * 0.1);
+    ctx.moveTo(sx + r * 0.5, sy + r * 0.25);
+    ctx.lineTo(sx + r * 0.9, sy + r * 0.3);
+    ctx.stroke();
+  }
+
+  // Tail hints
+  ctx.fillStyle = palette.accent;
+  if (type === 'raccoon') {
+    ctx.beginPath();
+    ctx.ellipse(sx + r * 0.95, sy + r * 0.5, r * 0.4, r * 0.2, 0.4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = palette.mask;
+    ctx.fillRect(sx + r * 0.7, sy + r * 0.45, r * 0.2, r * 0.1);
+  } else if (type === 'puppy') {
+    ctx.beginPath();
+    ctx.ellipse(sx + r * 0.9, sy + r * 0.4, r * 0.35, r * 0.18, -0.4, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (type === 'kitty') {
+    ctx.beginPath();
+    ctx.ellipse(sx + r * 0.9, sy + r * 0.45, r * 0.32, r * 0.16, 0.2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
   ctx.restore();
 }
 
@@ -789,6 +861,27 @@ function drawRoundedRect(ctx, x, y, w, h, r) {
   ctx.lineTo(x, y + r);
   ctx.quadraticCurveTo(x, y, x + r, y);
   ctx.closePath();
+  ctx.fill();
+}
+
+function drawEar(ctx, x, y, rx, ry) {
+  ctx.beginPath();
+  ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function drawTriangleEar(ctx, x, y, size) {
+  ctx.beginPath();
+  ctx.moveTo(x, y - size);
+  ctx.lineTo(x - size * 0.8, y + size * 0.6);
+  ctx.lineTo(x + size * 0.8, y + size * 0.6);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function drawFlopEar(ctx, x, y, rx, ry) {
+  ctx.beginPath();
+  ctx.ellipse(x, y, rx, ry, 0.2, 0, Math.PI * 2);
   ctx.fill();
 }
 
