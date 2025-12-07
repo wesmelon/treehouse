@@ -25,6 +25,7 @@ Play as a friendly critter (raccoon, bunny, puppy, or kitty) tending a larger sc
 - Seasonal: Festive touches like a cozy 🎄 and presents hang out near the center.
 - Houses: Stand at a door and press Action to enter; talk to friends inside or step on the exit mat to return outside.
 - Save/Load: Use the Save Map / Load Map buttons (bottom-right) to export/import map state as JSON.
+- Tests: Run `npm test` for a quick syntax smoke check.
 
 ## Loop
 

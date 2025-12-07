@@ -1,0 +1,8 @@
+{
+  "name": "treehouse",
+  "version": "1.0.0",
+  "description": "Little Farm Friend toddler game",
+  "scripts": {
+    "test": "node --check game.js && node --check mapState.js"
+  }
+}

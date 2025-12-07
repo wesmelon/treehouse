@@ -904,9 +904,6 @@ function drawCritterSprite(ctx, sx, sy, scale, type, highlight = false, walkPhas
 
   ctx.fillStyle = palette.belly;
   ctx.fillRect(sx - r * 0.4, legY - legH * 0.2, r * 0.8, legH * 0.35);
-    ctx.fill();
-  }
-
   ctx.restore();
 }
 
