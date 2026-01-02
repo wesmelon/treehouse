@@ -1,0 +1,65 @@
+# C# / .NET
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+bin/
+obj/
+*.dll
+*.exe
+!build.bat
+!run.bat
+*.pdb
+*.cache
+*.log
+
+# MonoGame
+*.mgcontent
+*.mgstats
+Content/bin/
+Content/obj/
+
+# Save files
+Saves/
+
+# Visual Studio
+.vs/
+*.sln
+*.csproj.user
+
+# Rider
+.idea/
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+
+# NuGet
+*.nupkg
+**/packages/*
+!**/packages/build/
+*.nuget.props
+*.nuget.targets
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*~
+
+# Node (for web-prototype)
+node_modules/
+npm-debug.log

@@ -1,0 +1,3 @@
+@echo off
+echo Running Stardew Valley Clone...
+dotnet run
