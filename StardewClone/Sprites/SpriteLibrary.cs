@@ -64,10 +64,10 @@ namespace StardewClone
                             DrawPlayerUp(data, width, startX, startY, frame, skin, shirt, pants, hair, outline);
                             break;
                         case 2: // Left
-                            DrawPlayerLeft(data, width, startX, startY, frame, skin, shirt, pants, outline);
+                            DrawPlayerLeft(data, width, startX, startY, frame, skin, shirt, pants, hair, outline);
                             break;
                         case 3: // Right
-                            DrawPlayerRight(data, width, startX, startY, frame, skin, shirt, pants, outline);
+                            DrawPlayerRight(data, width, startX, startY, frame, skin, shirt, pants, hair, outline);
                             break;
                     }
                 }
@@ -142,7 +142,7 @@ namespace StardewClone
             }
         }
 
-        private void DrawPlayerLeft(Color[] data, int width, int x, int y, int frame, Color skin, Color shirt, Color pants, Color outline)
+        private void DrawPlayerLeft(Color[] data, int width, int x, int y, int frame, Color skin, Color shirt, Color pants, Color hair, Color outline)
         {
             // Head
             for (int py = 3; py <= 6; py++)
@@ -171,7 +171,7 @@ namespace StardewClone
             }
         }
 
-        private void DrawPlayerRight(Color[] data, int width, int x, int y, int frame, Color skin, Color shirt, Color pants, Color outline)
+        private void DrawPlayerRight(Color[] data, int width, int x, int y, int frame, Color skin, Color shirt, Color pants, Color hair, Color outline)
         {
             // Head
             for (int py = 3; py <= 6; py++)
