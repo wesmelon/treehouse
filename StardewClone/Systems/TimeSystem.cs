@@ -75,14 +75,25 @@ namespace StardewClone.Systems
 
         private void AdvanceSeason()
         {
-            CurrentSeason = CurrentSeason switch
+            switch (CurrentSeason)
             {
-                Season.Spring => Season.Summer,
-                Season.Summer => Season.Fall,
-                Season.Fall => Season.Winter,
-                Season.Winter => { Year++; return Season.Spring; },
-                _ => Season.Spring
-            };
+                case Season.Spring:
+                    CurrentSeason = Season.Summer;
+                    break;
+                case Season.Summer:
+                    CurrentSeason = Season.Fall;
+                    break;
+                case Season.Fall:
+                    CurrentSeason = Season.Winter;
+                    break;
+                case Season.Winter:
+                    Year++;
+                    CurrentSeason = Season.Spring;
+                    break;
+                default:
+                    CurrentSeason = Season.Spring;
+                    break;
+            }
         }
 
         private void DetermineWeather()
