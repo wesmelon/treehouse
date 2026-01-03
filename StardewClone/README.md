@@ -67,17 +67,20 @@ A full-fledged farming simulation game inspired by Stardew Valley, built with C#
 
 ### Prerequisites
 - Windows 10/11
-- [.NET 6.0 SDK or later](https://dotnet.microsoft.com/download/dotnet/6.0)
+- [.NET 8.0 SDK or later](https://dotnet.microsoft.com/download/dotnet/8.0)
 - (Optional) Visual Studio 2022 or Visual Studio Code
 
-### Quick Start
+### Quick Start - First Time Setup
 
 #### Option 1: Using Batch Files (Easiest)
-1. Double-click `build.bat` to compile the game
+1. Double-click `build.bat` to install tools and compile the game
 2. Double-click `run.bat` to start playing
 
 #### Option 2: Command Line
 ```bash
+# Install the MonoGame Content Builder tool
+dotnet tool restore
+
 # Restore dependencies
 dotnet restore
 
@@ -90,8 +93,20 @@ dotnet run
 
 #### Option 3: Visual Studio
 1. Open `StardewClone.csproj` in Visual Studio 2022
-2. Press F5 to build and run
-3. Or use Build → Build Solution, then Debug → Start Without Debugging
+2. Right-click the project and select "Restore NuGet Packages"
+3. Press F5 to build and run
+4. Or use Build → Build Solution, then Debug → Start Without Debugging
+
+### Troubleshooting
+
+**Error: "The command dotnet mgcb ... exited with code 1"**
+- Solution: Run `dotnet tool restore` first to install the MonoGame Content Builder
+
+**Error: ".NET 6.0 is out of support"**
+- Solution: Install [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+
+**Error: "No executable found matching command dotnet-mgcb"**
+- Solution: Run `build.bat` or manually run `dotnet tool restore`
 
 ### Creating a Standalone Executable
 
@@ -102,7 +117,7 @@ To create a distributable Windows executable:
 dotnet publish -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true
 
 # The executable will be in:
-# bin/Release/net6.0-windows/win-x64/publish/StardewClone.exe
+# bin/Release/net8.0-windows/win-x64/publish/StardewClone.exe
 ```
 
 You can then copy the entire `publish` folder to any Windows PC and run `StardewClone.exe` without needing .NET installed.
@@ -111,7 +126,9 @@ You can then copy the entire `publish` folder to any Windows PC and run `Stardew
 
 ```
 StardewClone/
-├── Content/              # Game assets (sprites, sounds, etc.)
+├── .config/             # Dotnet tool configuration
+│   └── dotnet-tools.json
+├── Content/             # Game assets (sprites, sounds, etc.)
 ├── Models/              # Data models and enums
 │   ├── Enums.cs         # Season, Weather, ItemType, etc.
 │   ├── Item.cs          # Item and ItemDatabase classes
@@ -131,7 +148,9 @@ StardewClone/
 │   └── UIManager.cs     # HUD, inventory, shop UI
 ├── Game1.cs             # Main game class
 ├── Program.cs           # Entry point
-└── README.md           # This file
+├── build.bat            # Build script (Windows)
+├── run.bat              # Run script (Windows)
+└── README.md            # This file
 ```
 
 ## Save System
@@ -175,7 +194,7 @@ Potential features for future development:
 ## Technical Details
 
 - **Engine**: MonoGame 3.8.1
-- **Framework**: .NET 6.0
+- **Framework**: .NET 8.0
 - **Platform**: Windows (DirectX)
 - **Resolution**: 1280x720 (windowed)
 - **Rendering**: 2D sprite-based with pixel art scaling

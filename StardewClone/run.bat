@@ -1,3 +1,6 @@
 @echo off
+echo Installing MonoGame Content Builder Tool (if needed)...
+dotnet tool restore
+echo.
 echo Running Stardew Valley Clone...
 dotnet run
