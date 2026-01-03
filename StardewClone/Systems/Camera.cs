@@ -19,17 +19,21 @@ namespace StardewClone.Systems
 
         public void Follow(Vector2 target)
         {
-            // Smooth camera follow
+            // Center camera on target (player)
+            // Account for zoom when calculating the center offset
             Vector2 desiredPosition = target - new Vector2(_viewport.Width / (2 * Zoom), _viewport.Height / (2 * Zoom));
-            Position = Vector2.Lerp(Position, desiredPosition, 0.1f);
+
+            // Smooth camera follow with higher lerp factor for more responsive following
+            Position = Vector2.Lerp(Position, desiredPosition, 0.2f);
 
             UpdateTransform();
         }
 
         private void UpdateTransform()
         {
+            // Create transformation matrix that centers the camera on the target
             Transform = Matrix.CreateTranslation(-Position.X, -Position.Y, 0) *
-                       Matrix.CreateScale(Zoom) *
+                       Matrix.CreateScale(Zoom, Zoom, 1) *
                        Matrix.CreateTranslation(_viewport.Width / 2f, _viewport.Height / 2f, 0);
         }
 
