@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stardew Clone - Sprite Sheet Preview</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #2a2a2a;
+            color: #fff;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #1a1a1a;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+            text-shadow: 2px 2px 4px #000;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 30px;
+        }
+        canvas {
+            background: #333;
+            border: 2px solid #555;
+            margin: 10px 0;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #252525;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+        }
+        .section h2 {
+            color: #4CAF50;
+            margin-top: 0;
+        }
+        .sprite-row {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            padding: 10px;
+            background: #2a2a2a;
+            border-radius: 5px;
+        }
+        .sprite-label {
+            width: 200px;
+            font-weight: bold;
+            color: #fff;
+        }
+        .sprite-container {
+            display: flex;
+            gap: 10px;
+        }
+        .sprite-box {
+            background: #444;
+            padding: 5px;
+            border-radius: 3px;
+            border: 1px solid #666;
+        }
+        .stage-label {
+            font-size: 10px;
+            color: #999;
+            text-align: center;
+            margin-top: 3px;
+        }
+        #fullAtlas {
+            display: block;
+            margin: 20px auto;
+            border: 3px solid #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌾 STARDEW VALLEY CLONE 🌾</h1>
+        <div class="subtitle">Pixel Art Sprite Sheet - All Game Assets</div>
+
+        <div style="text-align: center; margin: 20px 0;">
+            <canvas id="fullAtlas" width="512" height="512"></canvas>
+            <div style="color: #888; margin-top: 10px;">Full Sprite Atlas (16x16 px sprites, 2x scale)</div>
+        </div>
+
+        <div class="section">
+            <h2>👨‍🌾 PLAYER CHARACTER - Farmer</h2>
+            <p style="color: #aaa;">Royal blue shirt, brown hair, detailed animations</p>
+            <div id="playerSprites"></div>
+        </div>
+
+        <div class="section">
+            <h2>🌱 CROPS - 7 Types, 5 Growth Stages</h2>
+            <p style="color: #aaa;">From seed to harvest with detailed progression</p>
+            <div id="cropSprites"></div>
+        </div>
+
+        <div class="section">
+            <h2>👥 NPCs - Unique Characters</h2>
+            <p style="color: #aaa;">Each with distinct appearance and color scheme</p>
+            <div id="npcSprites"></div>
+        </div>
+    </div>
+
+    <script>
+        const SPRITE_SIZE = 16;
+        const SCALE = 3;
+
+        // Color definitions matching C# code
+        const colors = {
+            // Player
+            skin: [255, 220, 177],
+            shirt: [65, 105, 225],
+            pants: [101, 67, 33],
+            hair: [139, 69, 19],
+            outline: [30, 30, 30],
+            eyes: [50, 50, 50],
+
+            // Crop colors (stage 4 - harvestable)
+            parsnip: [255, 248, 220],
+            cauliflower: [255, 255, 240],
+            potato: [222, 184, 135],
+            tomato: [255, 69, 0],
+            corn: [255, 215, 0],
+            pumpkin: [255, 117, 24],
+            wheat: [245, 222, 179],
+
+            stem: [34, 139, 34],
+            darkGreen: [0, 100, 0],
+            soil: [101, 67, 33],
+
+            // NPCs
+            npcSkin: [255, 220, 177],
+            pierreShirt: [34, 139, 34],
+            pierreHair: [85, 107, 47],
+            emilyDress: [147, 112, 219],
+            emilyHair: [255, 69, 0],
+            shaneShirt: [105, 105, 105],
+            shaneHair: [47, 79, 79],
+            npcPants: [60, 60, 60]
+        };
+
+        function createCanvas(width, height) {
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.imageSmoothingEnabled = false;
+            return { canvas, ctx };
+        }
+
+        function setPixel(imageData, x, y, color, width) {
+            if (x < 0 || y < 0 || x >= width || y >= width) return;
+            const idx = (y * width + x) * 4;
+            imageData.data[idx] = color[0];
+            imageData.data[idx + 1] = color[1];
+            imageData.data[idx + 2] = color[2];
+            imageData.data[idx + 3] = 255;
+        }
+
+        function drawPlayerDown(imageData, x, y, frame, width) {
+            // Simplified player sprite
+            const c = colors;
+
+            // Head
+            for (let py = 4; py <= 7; py++) {
+                for (let px = 5; px <= 10; px++) {
+                    setPixel(imageData, x + px, y + py, c.skin, width);
+                }
+            }
+
+            // Hair
+            for (let i = 5; i <= 10; i++) {
+                setPixel(imageData, x + i, y + 4, c.hair, width);
+            }
+
+            // Eyes
+            setPixel(imageData, x + 6, y + 6, c.eyes, width);
+            setPixel(imageData, x + 9, y + 6, c.eyes, width);
+
+            // Body - blue shirt
+            for (let py = 8; py <= 11; py++) {
+                for (let px = 5; px <= 10; px++) {
+                    setPixel(imageData, x + px, y + py, c.shirt, width);
+                }
+            }
+
+            // Pants
+            for (let py = 12; py <= 14; py++) {
+                for (let px = 6; px <= 9; px++) {
+                    setPixel(imageData, x + px, y + py, c.pants, width);
+                }
+            }
+        }
+
+        function drawCropStage(imageData, x, y, stage, cropColor, width) {
+            const c = colors;
+
+            if (stage === 0) {
+                // Seed
+                for (let py = 12; py <= 13; py++) {
+                    for (let px = 7; px <= 8; px++) {
+                        setPixel(imageData, x + px, y + py, cropColor, width);
+                    }
+                }
+            } else if (stage === 4) {
+                // Harvestable - show crop
+                for (let py = 10; py <= 13; py++) {
+                    for (let px = 6; px <= 10; px++) {
+                        setPixel(imageData, x + px, y + py, cropColor, width);
+                    }
+                }
+                // Leaves
+                for (let py = 8; py <= 10; py++) {
+                    for (let px = 6; px <= 10; px++) {
+                        setPixel(imageData, x + px, y + py, c.darkGreen, width);
+                    }
+                }
+            } else {
+                // Growing stages
+                const height = 4 + stage * 2;
+                for (let py = 0; py < height; py++) {
+                    for (let px = 7; px <= 8; px++) {
+                        setPixel(imageData, x + px, y + 13 - py, c.darkGreen, width);
+                    }
+                }
+            }
+        }
+
+        function drawNPC(imageData, x, y, clothingColor, hairColor, width) {
+            const c = colors;
+
+            // Head
+            for (let py = 4; py <= 7; py++) {
+                for (let px = 5; px <= 10; px++) {
+                    setPixel(imageData, x + px, y + py, c.npcSkin, width);
+                }
+            }
+
+            // Hair
+            for (let i = 5; i <= 10; i++) {
+                setPixel(imageData, x + i, y + 4, hairColor, width);
+            }
+
+            // Eyes
+            setPixel(imageData, x + 6, y + 6, c.outline, width);
+            setPixel(imageData, x + 9, y + 6, c.outline, width);
+
+            // Body
+            for (let py = 8; py <= 11; py++) {
+                for (let px = 5; px <= 10; px++) {
+                    setPixel(imageData, x + px, y + py, clothingColor, width);
+                }
+            }
+
+            // Pants
+            for (let py = 12; py <= 14; py++) {
+                for (let px = 6; px <= 9; px++) {
+                    setPixel(imageData, x + px, y + py, c.npcPants, width);
+                }
+            }
+        }
+
+        // Create full atlas
+        function createFullAtlas() {
+            const atlasSize = 256;
+            const { canvas, ctx } = createCanvas(atlasSize, atlasSize);
+            const imageData = ctx.createImageData(atlasSize, atlasSize);
+
+            // Fill with transparent/dark background
+            for (let i = 0; i < imageData.data.length; i += 4) {
+                imageData.data[i] = 40;
+                imageData.data[i + 1] = 40;
+                imageData.data[i + 2] = 40;
+                imageData.data[i + 3] = 255;
+            }
+
+            // Player sprites - 4 directions
+            for (let dir = 0; dir < 4; dir++) {
+                for (let frame = 0; frame < 4; frame++) {
+                    const x = frame * SPRITE_SIZE;
+                    const y = dir * SPRITE_SIZE;
+                    if (dir === 0) drawPlayerDown(imageData, x, y, frame, atlasSize);
+                }
+            }
+
+            // Crop sprites - 7 types, 5 stages
+            const cropColors = [
+                colors.parsnip, colors.cauliflower, colors.potato,
+                colors.tomato, colors.corn, colors.pumpkin, colors.wheat
+            ];
+
+            for (let crop = 0; crop < 7; crop++) {
+                for (let stage = 0; stage < 5; stage++) {
+                    const x = stage * SPRITE_SIZE;
+                    const y = (4 + crop) * SPRITE_SIZE;
+                    drawCropStage(imageData, x, y, stage, cropColors[crop], atlasSize);
+                }
+            }
+
+            // NPC sprites
+            const npcConfigs = [
+                [colors.pierreShirt, colors.pierreHair],
+                [colors.emilyDress, colors.emilyHair],
+                [colors.shaneShirt, colors.shaneHair]
+            ];
+
+            for (let i = 0; i < 3; i++) {
+                const x = 0;
+                const y = (11 + i) * SPRITE_SIZE;
+                drawNPC(imageData, x, y, npcConfigs[i][0], npcConfigs[i][1], atlasSize);
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+            return canvas;
+        }
+
+        function createSpritePreview(row, count) {
+            const { canvas, ctx } = createCanvas(SPRITE_SIZE * count, SPRITE_SIZE);
+            const atlas = createFullAtlas();
+
+            for (let i = 0; i < count; i++) {
+                ctx.drawImage(
+                    atlas,
+                    i * SPRITE_SIZE, row * SPRITE_SIZE,
+                    SPRITE_SIZE, SPRITE_SIZE,
+                    i * SPRITE_SIZE, 0,
+                    SPRITE_SIZE, SPRITE_SIZE
+                );
+            }
+
+            return canvas;
+        }
+
+        function addSpriteRow(container, label, row, count, stages) {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'sprite-row';
+
+            const labelDiv = document.createElement('div');
+            labelDiv.className = 'sprite-label';
+            labelDiv.textContent = label;
+            rowDiv.appendChild(labelDiv);
+
+            const spritesDiv = document.createElement('div');
+            spritesDiv.className = 'sprite-container';
+
+            const canvas = createSpritePreview(row, count);
+
+            for (let i = 0; i < count; i++) {
+                const box = document.createElement('div');
+                box.className = 'sprite-box';
+
+                const spriteCanvas = document.createElement('canvas');
+                spriteCanvas.width = SPRITE_SIZE * SCALE;
+                spriteCanvas.height = SPRITE_SIZE * SCALE;
+                const ctx = spriteCanvas.getContext('2d');
+                ctx.imageSmoothingEnabled = false;
+                ctx.drawImage(
+                    canvas,
+                    i * SPRITE_SIZE, 0,
+                    SPRITE_SIZE, SPRITE_SIZE,
+                    0, 0,
+                    SPRITE_SIZE * SCALE, SPRITE_SIZE * SCALE
+                );
+
+                box.appendChild(spriteCanvas);
+
+                if (stages) {
+                    const stageLabel = document.createElement('div');
+                    stageLabel.className = 'stage-label';
+                    stageLabel.textContent = stages[i];
+                    box.appendChild(stageLabel);
+                }
+
+                spritesDiv.appendChild(box);
+            }
+
+            rowDiv.appendChild(spritesDiv);
+            container.appendChild(rowDiv);
+        }
+
+        // Initialize
+        window.onload = function() {
+            // Full atlas
+            const atlasCanvas = document.getElementById('fullAtlas');
+            const atlasCtx = atlasCanvas.getContext('2d');
+            atlasCtx.imageSmoothingEnabled = false;
+            const fullAtlas = createFullAtlas();
+            atlasCtx.drawImage(fullAtlas, 0, 0, 256, 256, 0, 0, 512, 512);
+
+            // Player sprites
+            const playerContainer = document.getElementById('playerSprites');
+            addSpriteRow(playerContainer, 'Facing Down', 0, 4, ['Frame 1', 'Frame 2', 'Frame 3', 'Frame 4']);
+            addSpriteRow(playerContainer, 'Facing Up', 1, 4, ['Frame 1', 'Frame 2', 'Frame 3', 'Frame 4']);
+            addSpriteRow(playerContainer, 'Facing Left', 2, 4, ['Frame 1', 'Frame 2', 'Frame 3', 'Frame 4']);
+            addSpriteRow(playerContainer, 'Facing Right', 3, 4, ['Frame 1', 'Frame 2', 'Frame 3', 'Frame 4']);
+
+            // Crop sprites
+            const cropContainer = document.getElementById('cropSprites');
+            const stages = ['Seed', 'Sprout', 'Growing', 'Mature', 'Harvest'];
+            addSpriteRow(cropContainer, '🥕 Parsnip', 4, 5, stages);
+            addSpriteRow(cropContainer, '🥦 Cauliflower', 5, 5, stages);
+            addSpriteRow(cropContainer, '🥔 Potato', 6, 5, stages);
+            addSpriteRow(cropContainer, '🍅 Tomato', 7, 5, stages);
+            addSpriteRow(cropContainer, '🌽 Corn', 8, 5, stages);
+            addSpriteRow(cropContainer, '🎃 Pumpkin', 9, 5, stages);
+            addSpriteRow(cropContainer, '🌾 Wheat', 10, 5, stages);
+
+            // NPC sprites
+            const npcContainer = document.getElementById('npcSprites');
+            addSpriteRow(npcContainer, 'Pierre (Merchant)', 11, 1, ['']);
+            addSpriteRow(npcContainer, 'Emily (Villager)', 12, 1, ['']);
+            addSpriteRow(npcContainer, 'Shane (Villager)', 13, 1, ['']);
+        };
+    </script>
+</body>
+</html>
